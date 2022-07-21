@@ -1,6 +1,8 @@
 package relevantclasses;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main {
 
@@ -42,14 +44,69 @@ public class Main {
 		d.leaving.add(b);
 
 		Page[] graph = { a, b, c, d };
+
+		boolean[][] gg = { { false, false, true, true }, { true, false, true, false }, { false, false, false, true },
+				{ false, true, false, false } };
+
+		Map<Page, Double> myans;
+		Thread tt = new Thread(new Runnable() {
+			Map<Page, Double> ans;
+
+			@Override
+			public String toString() {
+				return ans.toString();
+			}
+
+			@Override
+			public void run() {
+				ans = rankPage(graph);
+			}
+		});
+		long t1 = System.currentTimeMillis();
+		tt.start();
+		try {
+			tt.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		long t2 = System.currentTimeMillis();
+
+		Thread ttt = new Thread(new Runnable() {
+			double[] ans;
+
+			@Override
+			public String toString() {
+				return Arrays.toString(ans);
+			}
+
+			@Override
+			public void run() {
+				ans = rankPage(gg);
+			}
+		});
+
+		long t3 = System.currentTimeMillis();
+
+		ttt.start();
+		try {
+			ttt.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		long t4 = System.currentTimeMillis();
+
+		System.out.println(ttt + "Time taken = " + (double) (t4 - t3) / 1000);
 	}
 
-	public static double[] rankPage(Page[] graph) {
+	public static Map<Page, Double> rankPage(Page[] graph) {
 		int n = graph.length;
-		double[] ranks = new double[n];
+		HashMap<Page, Double> ranks = new HashMap<>();
 
 		double val = (double) 1 / n;
-		Arrays.fill(ranks, val);
+		for (Page p : graph) {
+			ranks.put(p, val);
+		}
 
 		for (int i = 0; i < n; i++) {
 			Page page = graph[i];
@@ -63,11 +120,29 @@ public class Main {
 			}
 		}
 
+		int loop = 21;
+
+		while (--loop > 0) {
+			for (int i = 0; i < n; i++) {
+				Page page = graph[i];
+
+				ranks.put(page, 0.0);
+
+				for (Page pp : page.arriving) {
+					ranks.put(page, ranks.get(page) + (ranks.get(pp) / pp.leaving.size()));
+				}
+
+			}
+		}
+
+		double sum = 0;
+
 		for (int i = 0; i < n; i++) {
-			Page page = graph[i];
+			sum += ranks.get(graph[i]);
+		}
 
-			ranks[i] = 0;
-
+		for (int i = 0; i < n; i++) {
+			ranks.put(graph[i], 100 * ranks.get(graph[i]) / sum);
 		}
 
 		return ranks;

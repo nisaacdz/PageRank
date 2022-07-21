@@ -11,4 +11,9 @@ public class Page {
 		this.link = link;
 	}
 
+	@Override
+	public String toString() {
+		return link;
+	}
+
 }
