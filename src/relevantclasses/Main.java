@@ -45,58 +45,72 @@ public class Main {
 
 		Page[] graph = { a, b, c, d };
 
-		boolean[][] gg = { { false, false, true, true }, { true, false, true, false }, { false, false, false, true },
-				{ false, true, false, false } };
+		boolean[][] gg = { { false, true, false, false }, { false, false, true, true }, { true, true, false, false },
+				{ true, false, true, false } };
 
-		Map<Page, Double> myans;
-		Thread tt = new Thread(new Runnable() {
-			Map<Page, Double> ans;
+		System.out.println(Arrays.toString(rankPage(gg)));
+		System.out.println(Arrays.toString(rankPage2(gg)));
 
-			@Override
-			public String toString() {
-				return ans.toString();
+	}
+
+	public static double[] rankPage(boolean[][] graph) {
+		int n = graph.length;
+		if (n <= 1)
+			return new double[] { 100 };
+
+		double val = (double) 1 / n;
+		double[] arr = new double[n];
+		double[][] pp = new double[n][n];
+		int count;
+		for (int i = 0; i < n; i++) {
+			count = 0;
+			for (int j = 0; j < n; j++) {
+				if (graph[i][j])
+					count++;
 			}
-
-			@Override
-			public void run() {
-				ans = rankPage(graph);
-			}
-		});
-		long t1 = System.currentTimeMillis();
-		tt.start();
-		try {
-			tt.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		long t2 = System.currentTimeMillis();
-
-		Thread ttt = new Thread(new Runnable() {
-			double[] ans;
-
-			@Override
-			public String toString() {
-				return Arrays.toString(ans);
-			}
-
-			@Override
-			public void run() {
-				ans = rankPage(gg);
-			}
-		});
-
-		long t3 = System.currentTimeMillis();
-
-		ttt.start();
-		try {
-			ttt.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+			arr[i] = count;
 		}
 
-		long t4 = System.currentTimeMillis();
+		for (int x = 0; x < n; x++) {
+			if (arr[x] == 0) {
+				Arrays.fill(pp[x], (double) 1 / (n - 1));
+			} else {
+				for (int y = 0; y < n; y++) {
+					if (graph[x][y])
+						pp[x][y] = 1 / arr[x];
+				}
+			}
+		}
 
-		System.out.println(ttt + "Time taken = " + (double) (t4 - t3) / 1000);
+		Arrays.fill(arr, val);
+
+		int doTimes = 25;
+
+		while (--doTimes > 0) {
+			arr = multPlyy(pp, new double[][] { arr })[0];
+		}
+
+		return arr;
+	}
+
+	public static void printArray(double[][] array) {
+		for (double[] arr : array) {
+			System.out.println(Arrays.toString(arr));
+		}
+	}
+
+	public static double[][] multPlyy(double[][] arr1, double[][] arr2) {
+		int row2 = arr2.length;
+		int col2 = arr2[0].length;
+
+		double ans[][] = new double[row2][col2];
+		for (int i = 0; i < col2; i++) {
+			for (int j = 0; j < col2; j++) {
+				ans[0][i] += arr1[j][i] * arr2[0][j];
+			}
+		}
+
+		return ans;
 	}
 
 	public static Map<Page, Double> rankPage(Page[] graph) {
@@ -148,7 +162,7 @@ public class Main {
 		return ranks;
 	}
 
-	public static double[] rankPage(boolean[][] graph) {
+	public static double[] rankPage2(boolean[][] graph) {
 		int n = graph.length;
 		double[] ranks = new double[n];
 		double val = (double) 1 / n;
@@ -173,7 +187,7 @@ public class Main {
 			}
 		}
 
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 25; i++) {
 			for (int x = 0; x < n; x++) {
 				ranks[x] = 0;
 				for (int y = 0; y < n; y++) {
