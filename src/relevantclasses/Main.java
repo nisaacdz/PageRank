@@ -2,7 +2,51 @@ package relevantclasses;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+class Student {
+	int age;
+	double cwa;
+	int papers;
+	int awards;
+	int extra;
+
+	public Student() {
+		
+	}
+}
+
+class Pair {
+	public Set<Integer> st = new HashSet<>();
+
+	public Pair(int a, int b) {
+		st.add(a);
+		st.add(b);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(st);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Pair other = (Pair) obj;
+		Iterator<Integer> i = other.st.iterator();
+		return st.contains(i.next()) && st.contains(i.next());
+	}
+
+}
 
 public class Main {
 
@@ -48,8 +92,18 @@ public class Main {
 		boolean[][] gg = { { false, true, false, false }, { false, false, true, true }, { true, true, false, false },
 				{ true, false, true, false } };
 
-		System.out.println(Arrays.toString(rankPage(gg)));
-		System.out.println(Arrays.toString(rankPage2(gg)));
+		long t1 = System.currentTimeMillis();
+		String ans = Arrays.toString(rankPage(gg));
+		long t2 = System.currentTimeMillis();
+		double time = (double) (t2 - t1) / 1000;
+
+		long t3 = System.currentTimeMillis();
+		String ans2 = Arrays.toString(rankPage2(gg));
+		long t4 = System.currentTimeMillis();
+		double time2 = (double) (t4 - t3) / 1000;
+
+		System.out.println("Result : " + ans + " , Time taken : " + time);
+		System.out.println("Result : " + ans2 + " , Time taken : " + time2);
 
 	}
 
